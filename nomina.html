@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Nòmina</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3348;
+    --accent: #4ade80;
+    --accent2: #60a5fa;
+    --accent3: #f472b6;
+    --accent4: #fb923c;
+    --text: #e8eaf0;
+    --text2: #8b90a8;
+    --text3: #555a73;
+    --mati: #fbbf24;
+    --tarda: #60a5fa;
+    --nit: #a78bfa;
+    --festiu: #f87171;
+    --dissabte: #34d399;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* ── VISTES ── */
+  .view { display: none; min-height: 100dvh; flex-direction: column; }
+  .view.active { display: flex; }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 52px 20px 16px;
+    background: linear-gradient(180deg, #131620 0%, var(--bg) 100%);
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .back-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .back-btn:active { transform: scale(.92); background: var(--surface2); }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -.5px; }
+  .header .subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* ── SCROLL AREA ── */
+  .scroll { flex: 1; overflow-y: auto; padding: 0 16px 100px; -webkit-overflow-scrolling: touch; }
+
+  /* ── MENU HOME ── */
+  .home-hero {
+    margin: 0 -16px;
+    padding: 32px 20px 28px;
+    background: linear-gradient(135deg, #1a2a1a 0%, #0f1117 60%);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .home-hero .date-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(74,222,128,.12); border: 1px solid rgba(74,222,128,.25);
+    color: var(--accent); padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; letter-spacing: .5px;
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  .home-hero h2 { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+  .home-hero .year { color: var(--text2); font-weight: 300; }
+  .home-hero .net-preview {
+    margin-top: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 42px; font-weight: 500;
+    color: var(--accent);
+    letter-spacing: -2px;
+  }
+  .home-hero .net-label { font-size: 12px; color: var(--text3); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px 0; }
+  .menu-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 16px;
+    cursor: pointer; transition: all .15s; text-align: left;
+    position: relative; overflow: hidden;
+  }
+  .menu-card:active { transform: scale(.96); }
+  .menu-card.full { grid-column: 1 / -1; }
+  .menu-card .card-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+  .menu-card .card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .menu-card .card-desc { font-size: 11px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+  .menu-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .menu-card.green::before { background: var(--accent); }
+  .menu-card.blue::before { background: var(--accent2); }
+  .menu-card.pink::before { background: var(--accent3); }
+  .menu-card.orange::before { background: var(--accent4); }
+  .menu-card.green { border-color: rgba(74,222,128,.2); }
+  .menu-card.blue { border-color: rgba(96,165,250,.2); }
+  .menu-card.pink { border-color: rgba(244,114,182,.2); }
+  .menu-card.orange { border-color: rgba(251,146,60,.2); }
+
+  /* ── FORMULARI HORES ── */
+  .form-section { margin-top: 20px; }
+  .form-label {
+    font-size: 11px; font-weight: 600; color: var(--text2);
+    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; display: block;
+  }
+  .form-group { margin-bottom: 20px; }
+
+  .date-display {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 16px;
+    font-size: 18px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .date-display input[type="date"] {
+    background: none; border: none; color: var(--accent2);
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    font-weight: 500; outline: none; cursor: pointer;
+  }
+
+  .torn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .torn-btn {
+    padding: 12px 4px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text2); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s; text-align: center;
+  }
+  .torn-btn .torn-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+  .torn-btn.selected-M { background: rgba(251,191,36,.15); border-color: var(--mati); color: var(--mati); }
+  .torn-btn.selected-T { background: rgba(96,165,250,.15); border-color: var(--tarda); color: var(--tarda); }
+  .torn-btn.selected-N { background: rgba(167,139,250,.15); border-color: var(--nit); color: var(--nit); }
+  .torn-btn.selected-D { background: rgba(107,114,128,.15); border-color: #6b7280; color: #9ca3af; }
+
+  .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .time-input {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 16px;
+    color: var(--text); font-family: 'DM Mono', monospace;
+    font-size: 22px; font-weight: 500; width: 100%;
+    outline: none; text-align: center; transition: border-color .15s;
+  }
+  .time-input:focus { border-color: var(--accent2); }
+  .time-input-wrap { text-align: center; }
+  .time-input-wrap .form-label { text-align: center; }
+
+  .tipus-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .tipus-btn {
+    padding: 10px 8px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text2); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s; text-align: center;
+  }
+  .tipus-btn.selected { border-color: var(--accent); color: var(--accent); background: rgba(74,222,128,.1); }
+  .tipus-btn.festiu.selected { border-color: var(--festiu); color: var(--festiu); background: rgba(248,113,113,.1); }
+  .tipus-btn.dissabte.selected { border-color: var(--dissabte); color: var(--dissabte); background: rgba(52,211,153,.1); }
+
+  .number-input-row { display: flex; align-items: center; gap: 12px; }
+  .num-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-size: 22px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .num-btn:active { transform: scale(.9); }
+  .num-display {
+    flex: 1; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px;
+    font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500;
+    color: var(--text); text-align: center;
+  }
+
+  /* Preview càlcul */
+  .calc-preview {
+    background: var(--surface); border: 1px solid rgba(74,222,128,.2);
+    border-radius: var(--radius); padding: 16px; margin-top: 8px;
+  }
+  .calc-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+  .calc-row .calc-label { font-size: 13px; color: var(--text2); }
+  .calc-row .calc-val { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--text); }
+  .calc-row.total { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 12px; }
+  .calc-row.total .calc-label { font-weight: 700; color: var(--text); font-size: 14px; }
+  .calc-row.total .calc-val { color: var(--accent); font-size: 18px; }
+
+  /* ── BOTÓ PRIMARI ── */
+  .btn-primary {
+    width: 100%; padding: 18px; border-radius: var(--radius);
+    background: var(--accent); border: none; color: #0a1a0a;
+    font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all .15s; letter-spacing: -.2px;
+    margin-top: 8px;
+  }
+  .btn-primary:active { transform: scale(.98); filter: brightness(.9); }
+  .btn-secondary {
+    width: 100%; padding: 16px; border-radius: var(--radius);
+    background: transparent; border: 1.5px solid var(--border);
+    color: var(--text2); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all .15s; margin-top: 8px;
+  }
+  .btn-secondary:active { background: var(--surface2); }
+
+  /* ── RESUM MES ── */
+  .mes-selector {
+    display: flex; gap: 8px; overflow-x: auto; padding: 16px 0 8px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .mes-selector::-webkit-scrollbar { display: none; }
+  .mes-chip {
+    flex-shrink: 0; padding: 8px 16px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text2); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .mes-chip.active { background: rgba(74,222,128,.15); border-color: var(--accent); color: var(--accent); }
+
+  .resum-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
+  }
+  .resum-card h3 { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .resum-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .resum-row:last-child { border-bottom: none; }
+  .resum-row .r-label { font-size: 14px; color: var(--text2); }
+  .resum-row .r-val { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--text); }
+  .resum-net {
+    background: linear-gradient(135deg, rgba(74,222,128,.12), rgba(74,222,128,.05));
+    border: 1px solid rgba(74,222,128,.3);
+    border-radius: var(--radius); padding: 24px 20px; text-align: center; margin-bottom: 12px;
+  }
+  .resum-net .net-label { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .resum-net .net-amount {
+    font-family: 'DM Mono', monospace; font-size: 48px; font-weight: 500;
+    color: var(--accent); letter-spacing: -2px;
+  }
+  .resum-net .net-note { font-size: 12px; color: var(--text3); margin-top: 6px; }
+
+  /* ── HISTORIAL DIES ── */
+  .dia-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px;
+    cursor: pointer; transition: all .15s;
+  }
+  .dia-item:active { transform: scale(.98); }
+  .dia-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .dot-M { background: var(--mati); }
+  .dot-T { background: var(--tarda); }
+  .dot-N { background: var(--nit); }
+  .dot-D { background: #6b7280; }
+  .dia-data { flex: 1; }
+  .dia-data .dia-date { font-size: 13px; font-weight: 600; color: var(--text); }
+  .dia-data .dia-info { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .dia-plus {
+    font-family: 'DM Mono', monospace; font-size: 13px;
+    font-weight: 500; color: var(--accent);
+  }
+  .dia-item.festiu { border-color: rgba(248,113,113,.3); }
+  .dia-item.festiu .dia-plus { color: var(--festiu); }
+
+  /* ── CONFIGURACIÓ ── */
+  .config-section { margin-bottom: 24px; }
+  .config-section-title {
+    font-size: 11px; color: var(--text3); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 10px; padding-left: 4px;
+  }
+  .config-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .config-item .c-label { font-size: 14px; color: var(--text); }
+  .config-item .c-unit { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .config-input {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px;
+    color: var(--accent2); font-family: 'DM Mono', monospace;
+    font-size: 16px; font-weight: 500; width: 100px;
+    outline: none; text-align: right; transition: border-color .15s;
+  }
+  .config-input:focus { border-color: var(--accent2); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--surface); border: 1px solid var(--accent);
+    color: var(--accent); padding: 12px 24px; border-radius: 20px;
+    font-size: 14px; font-weight: 600; opacity: 0; transition: all .3s;
+    z-index: 999; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── NAV BOTTOM ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; padding: 8px 0 20px; z-index: 100;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 3px; cursor: pointer; padding: 6px 0;
+    color: var(--text3); font-size: 10px; font-weight: 600;
+    letter-spacing: .3px; transition: color .15s;
+  }
+  .nav-item .nav-icon { font-size: 22px; }
+  .nav-item.active { color: var(--accent); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
+  .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; }
+
+  /* Animació entrada */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .anim { animation: slideUp .25s ease forwards; }
+
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- VISTA: INICI -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view active" id="view-home">
+  <div class="home-hero">
+    <div class="date-badge">📅 <span id="home-mes-label"></span></div>
+    <h2><span id="home-mes-nom"></span> <span class="year" id="home-any"></span></h2>
+    <div class="net-preview" id="home-net">— €</div>
+    <div class="net-label">net estimat aquest mes</div>
+  </div>
+
+  <div class="scroll">
+    <div class="menu-grid anim">
+      <div class="menu-card green full" onclick="goTo('view-hores')">
+        <span class="card-icon">⏱️</span>
+        <div class="card-title">Entrar Hores</div>
+        <div class="card-desc">Registra el dia d'avui</div>
+      </div>
+      <div class="menu-card blue" onclick="goTo('view-resum')">
+        <span class="card-icon">📊</span>
+        <div class="card-title">Resum Mes</div>
+        <div class="card-desc">Veu el càlcul de la nòmina</div>
+      </div>
+      <div class="menu-card pink" onclick="goTo('view-historial')">
+        <span class="card-icon">📅</span>
+        <div class="card-title">Historial</div>
+        <div class="card-desc">Tots els dies registrats</div>
+      </div>
+      <div class="menu-card orange full" onclick="goTo('view-config')">
+        <span class="card-icon">⚙️</span>
+        <div class="card-title">Configuració</div>
+        <div class="card-desc">Salari, plusos i paràmetres</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- VISTA: ENTRAR HORES -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view" id="view-hores">
+  <div class="header">
+    <div class="header-top">
+      <button class="back-btn" onclick="goTo('view-home')">←</button>
+      <div style="width:36px"></div>
+    </div>
+    <h1>Entrar Hores</h1>
+    <div class="subtitle">Registre del dia</div>
+  </div>
+
+  <div class="scroll">
+    <div class="form-section">
+
+      <!-- DATA -->
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <div class="date-display">
+          <span id="data-text">avui</span>
+          <input type="date" id="input-data" onchange="updateDataText()">
+        </div>
+      </div>
+
+      <!-- TORN -->
+      <div class="form-group">
+        <label class="form-label">Torn</label>
+        <div class="torn-grid">
+          <button class="torn-btn selected-M" id="torn-M" onclick="selectTorn('M')">
+            <span class="torn-icon">🌅</span>Matí
+          </button>
+          <button class="torn-btn" id="torn-T" onclick="selectTorn('T')">
+            <span class="torn-icon">🌇</span>Tarda
+          </button>
+          <button class="torn-btn" id="torn-N" onclick="selectTorn('N')">
+            <span class="torn-icon">🌙</span>Nit
+          </button>
+          <button class="torn-btn" id="torn-D" onclick="selectTorn('D')">
+            <span class="torn-icon">🏖️</span>Descans
+          </button>
+        </div>
+      </div>
+
+      <!-- HORA ENTRADA / SORTIDA -->
+      <div class="form-group">
+        <label class="form-label">Horari</label>
+        <div class="time-row">
+          <div class="time-input-wrap">
+            <label class="form-label">Entrada</label>
+            <input type="time" class="time-input" id="input-entrada" oninput="calcPreview()">
+          </div>
+          <div class="time-input-wrap">
+            <label class="form-label">Sortida</label>
+            <input type="time" class="time-input" id="input-sortida" oninput="calcPreview()">
+          </div>
+        </div>
+      </div>
+
+      <!-- TIPUS DIA -->
+      <div class="form-group">
+        <label class="form-label">Tipus de dia</label>
+        <div class="tipus-grid">
+          <button class="tipus-btn selected" id="tipus-Normal" onclick="selectTipus('Normal')">Normal</button>
+          <button class="tipus-btn festiu" id="tipus-Festiu" onclick="selectTipus('Festiu')">🎉 Festiu</button>
+          <button class="tipus-btn dissabte" id="tipus-Dissabte" onclick="selectTipus('Dissabte')">Dissabte</button>
+          <button class="tipus-btn dissabte" id="tipus-Diumenge" onclick="selectTipus('Diumenge')">Diumenge</button>
+        </div>
+      </div>
+
+      <!-- HORES EXTRA -->
+      <div class="form-group">
+        <label class="form-label">Hores Extra</label>
+        <div class="number-input-row">
+          <button class="num-btn" onclick="changeNum('extra', -0.5)">−</button>
+          <div class="num-display" id="display-extra">0</div>
+          <button class="num-btn" onclick="changeNum('extra', 0.5)">+</button>
+        </div>
+      </div>
+
+      <!-- HORES NOCTURNES -->
+      <div class="form-group">
+        <label class="form-label">Hores Nocturnes</label>
+        <div class="number-input-row">
+          <button class="num-btn" onclick="changeNum('noct', -0.5)">−</button>
+          <div class="num-display" id="display-noct">0</div>
+          <button class="num-btn" onclick="changeNum('noct', 0.5)">+</button>
+        </div>
+      </div>
+
+      <!-- CÀLCUL PREVIEW -->
+      <div class="form-group">
+        <label class="form-label">Càlcul del dia</label>
+        <div class="calc-preview" id="calc-preview">
+          <div class="calc-row"><span class="calc-label">H. Treballades</span><span class="calc-val" id="prev-htreb">— h</span></div>
+          <div class="calc-row" id="prev-row-extra" style="display:none"><span class="calc-label">H. Extra</span><span class="calc-val" id="prev-extra">—</span></div>
+          <div class="calc-row" id="prev-row-noct" style="display:none"><span class="calc-label">H. Nocturna</span><span class="calc-val" id="prev-noct">—</span></div>
+          <div class="calc-row" id="prev-row-festiu" style="display:none"><span class="calc-label">Plus Festiu</span><span class="calc-val" id="prev-festiu">—</span></div>
+          <div class="calc-row" id="prev-row-diss" style="display:none"><span class="calc-label">Plus Dissabte</span><span class="calc-val" id="prev-diss">—</span></div>
+          <div class="calc-row total"><span class="calc-label">Plus del dia</span><span class="calc-val" id="prev-total">0,00 €</span></div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="guardarDia()">✅ Guardar</button>
+      <button class="btn-secondary" onclick="goTo('view-home')">Cancel·lar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- VISTA: RESUM MES -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view" id="view-resum">
+  <div class="header">
+    <div class="header-top">
+      <button class="back-btn" onclick="goTo('view-home')">←</button>
+      <div style="width:36px"></div>
+    </div>
+    <h1>Resum</h1>
+    <div class="subtitle">Càlcul de la nòmina</div>
+  </div>
+  <div class="scroll">
+    <div class="mes-selector" id="mes-selector"></div>
+    <div id="resum-content"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- VISTA: HISTORIAL -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view" id="view-historial">
+  <div class="header">
+    <div class="header-top">
+      <button class="back-btn" onclick="goTo('view-home')">←</button>
+      <div style="width:36px"></div>
+    </div>
+    <h1>Historial</h1>
+    <div class="subtitle">Tots els dies registrats</div>
+  </div>
+  <div class="scroll">
+    <div class="mes-selector" id="mes-selector-hist"></div>
+    <div id="historial-content"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- VISTA: CONFIGURACIÓ -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view" id="view-config">
+  <div class="header">
+    <div class="header-top">
+      <button class="back-btn" onclick="saveConfig(); goTo('view-home')">←</button>
+      <div style="width:36px"></div>
+    </div>
+    <h1>Configuració</h1>
+    <div class="subtitle">Paràmetres de la nòmina</div>
+  </div>
+  <div class="scroll">
+    <div id="config-content"></div>
+    <button class="btn-primary" onclick="saveConfig(); showToast('✅ Configuració guardada')">Guardar Configuració</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// DADES I CONFIGURACIÓ
+// ══════════════════════════════════════════════
+const MESOS = ['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
+const MESOS_CURT = ['Gen','Feb','Mar','Abr','Mai','Jun','Jul','Ago','Set','Oct','Nov','Des'];
+
+const CONFIG_DEFAULT = {
+  salariBase: 1088.85,
+  complementLloc: 786.18,
+  pagaDoble: 1875.03,
+  mesosPaga: '3,6,9,12',
+  preuHExtra: 18.60,
+  preuHFestiva: 16.94,
+  plusHNoct: 3.02,
+  plusHDiss: 8.56,
+  plusFestiu: 57.58,
+  pctIRPF: 17.95,
+  pctSS: 6.35,
+};
+
+let config = JSON.parse(localStorage.getItem('nomina_config') || JSON.stringify(CONFIG_DEFAULT));
+let registres = JSON.parse(localStorage.getItem('nomina_registres') || '[]');
+
+// Estat formulari hores
+let tornActual = 'M';
+let tipusActual = 'Normal';
+let numExtra = 0;
+let numNoct = 0;
+let mesResumActual = new Date().getMonth();
+let mesHistActual = new Date().getMonth();
+
+// ══════════════════════════════════════════════
+// NAVEGACIÓ
+// ══════════════════════════════════════════════
+function goTo(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  window.scrollTo(0, 0);
+
+  if (viewId === 'view-home') renderHome();
+  if (viewId === 'view-hores') initHores();
+  if (viewId === 'view-resum') renderResum();
+  if (viewId === 'view-historial') renderHistorial();
+  if (viewId === 'view-config') renderConfig();
+}
+
+// ══════════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════════
+function renderHome() {
+  const now = new Date();
+  const mes = now.getMonth();
+  const any = now.getFullYear();
+  document.getElementById('home-mes-nom').textContent = MESOS[mes];
+  document.getElementById('home-any').textContent = any;
+  document.getElementById('home-mes-label').textContent = MESOS[mes].toUpperCase() + ' ' + any;
+
+  const net = calcNet(mes, any);
+  document.getElementById('home-net').textContent = net > 0 ? formatEuro(net) : '— €';
+}
+
+// ══════════════════════════════════════════════
+// FORMULARI HORES
+// ══════════════════════════════════════════════
+function initHores() {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  document.getElementById('input-data').value = `${yyyy}-${mm}-${dd}`;
+  updateDataText();
+  numExtra = 0; numNoct = 0;
+  document.getElementById('display-extra').textContent = '0';
+  document.getElementById('display-noct').textContent = '0';
+  document.getElementById('input-entrada').value = '';
+  document.getElementById('input-sortida').value = '';
+  selectTorn('M');
+  selectTipus('Normal');
+  calcPreview();
+}
+
+function updateDataText() {
+  const v = document.getElementById('input-data').value;
+  if (!v) return;
+  const d = new Date(v + 'T00:00:00');
+  const dies = ['Diumenge','Dilluns','Dimarts','Dimecres','Dijous','Divendres','Dissabte'];
+  document.getElementById('data-text').textContent = `${dies[d.getDay()]} ${d.getDate()} ${MESOS[d.getMonth()]}`;
+}
+
+function selectTorn(t) {
+  tornActual = t;
+  ['M','T','N','D'].forEach(x => {
+    const b = document.getElementById('torn-' + x);
+    b.className = 'torn-btn' + (x === t ? ' selected-' + x : '');
+  });
+}
+
+function selectTipus(t) {
+  tipusActual = t;
+  document.querySelectorAll('.tipus-btn').forEach(b => {
+    b.classList.remove('selected');
+  });
+  document.getElementById('tipus-' + t).classList.add('selected');
+  calcPreview();
+}
+
+function changeNum(camp, delta) {
+  if (camp === 'extra') {
+    numExtra = Math.max(0, numExtra + delta);
+    document.getElementById('display-extra').textContent = numExtra % 1 === 0 ? numExtra : numExtra.toFixed(1);
+  } else {
+    numNoct = Math.max(0, numNoct + delta);
+    document.getElementById('display-noct').textContent = numNoct % 1 === 0 ? numNoct : numNoct.toFixed(1);
+  }
+  calcPreview();
+}
+
+function calcHoresTreb() {
+  const e = document.getElementById('input-entrada').value;
+  const s = document.getElementById('input-sortida').value;
+  if (!e || !s) return 0;
+  let [eh, em] = e.split(':').map(Number);
+  let [sh, sm] = s.split(':').map(Number);
+  let mins = (sh * 60 + sm) - (eh * 60 + em);
+  if (mins < 0) mins += 24 * 60;
+  return mins / 60;
+}
+
+function calcPreview() {
+  const hTreb = calcHoresTreb();
+  const impExtra = numExtra * config.preuHExtra;
+  const impNoct = numNoct * config.plusHNoct;
+  let impFestiu = 0, impDiss = 0;
+
+  if (tipusActual === 'Festiu') impFestiu = config.plusFestiu;
+  if (tipusActual === 'Dissabte') impDiss = hTreb * config.plusHDiss;
+  if (tipusActual === 'Diumenge') impDiss = hTreb * config.plusHDiss;
+
+  const total = impExtra + impNoct + impFestiu + impDiss;
+
+  document.getElementById('prev-htreb').textContent = hTreb > 0 ? hTreb.toFixed(1) + ' h' : '— h';
+  setPreviewRow('extra', numExtra > 0, `${numExtra}h × ${config.preuHExtra}€ = ${formatEuro(impExtra)}`);
+  setPreviewRow('noct', numNoct > 0, `${numNoct}h × ${config.plusHNoct}€ = ${formatEuro(impNoct)}`);
+  setPreviewRow('festiu', impFestiu > 0, formatEuro(impFestiu));
+  setPreviewRow('diss', impDiss > 0, formatEuro(impDiss));
+  document.getElementById('prev-total').textContent = formatEuro(total);
+}
+
+function setPreviewRow(id, show, text) {
+  document.getElementById('prev-row-' + id).style.display = show ? 'flex' : 'none';
+  document.getElementById('prev-' + id).textContent = text;
+}
+
+function guardarDia() {
+  const dataStr = document.getElementById('input-data').value;
+  if (!dataStr) { showToast('⚠️ Introdueix la data'); return; }
+  const d = new Date(dataStr + 'T00:00:00');
+
+  const hTreb = calcHoresTreb();
+  let plusFestiu = 0;
+  if (tipusActual === 'Festiu') plusFestiu = config.plusFestiu;
+
+  const reg = {
+    id: Date.now(),
+    data: dataStr,
+    torn: tornActual,
+    entrada: document.getElementById('input-entrada').value,
+    sortida: document.getElementById('input-sortida').value,
+    hTreb: hTreb,
+    hExtra: numExtra,
+    hNoct: numNoct,
+    tipus: tipusActual,
+    plusFestiu: plusFestiu,
+    mes: d.getMonth(),
+    any: d.getFullYear(),
+  };
+
+  // Eliminar si ja existeix el mateix dia
+  registres = registres.filter(r => r.data !== dataStr);
+  registres.push(reg);
+  registres.sort((a, b) => a.data.localeCompare(b.data));
+  saveRegistres();
+  showToast('✅ Dia guardat!');
+  setTimeout(() => goTo('view-home'), 800);
+}
+
+// ══════════════════════════════════════════════
+// RESUM MES
+// ══════════════════════════════════════════════
+function renderResum() {
+  const now = new Date();
+  renderMesSelector('mes-selector', mesResumActual, (i) => { mesResumActual = i; renderResumContent(); });
+  renderResumContent();
+}
+
+function renderResumContent() {
+  const any = new Date().getFullYear();
+  const mes = mesResumActual;
+  const regs = registres.filter(r => r.mes === mes && r.any === any);
+
+  // Càlculs
+  let totalHExtra = 0, totalHNoct = 0, totalFestius = 0, totalDiss = 0;
+  let impExtra = 0, impNoct = 0, impFestiu = 0, impDiss = 0;
+
+  regs.forEach(r => {
+    totalHExtra += r.hExtra || 0;
+    totalHNoct += r.hNoct || 0;
+    if (r.tipus === 'Festiu') { totalFestius++; impFestiu += config.plusFestiu; }
+    if (r.tipus === 'Dissabte' || r.tipus === 'Diumenge') {
+      impDiss += (r.hTreb || 0) * config.plusHDiss;
+      totalDiss++;
+    }
+  });
+  impExtra = totalHExtra * config.preuHExtra;
+  impNoct = totalHNoct * config.plusHNoct;
+
+  // Paga doble?
+  const mesosPaga = config.mesosPaga.split(',').map(m => parseInt(m.trim()));
+  const esMesPaga = mesosPaga.includes(mes + 1);
+  const pagaDobleImp = esMesPaga ? config.pagaDoble : 0;
+
+  const brut = config.salariBase + config.complementLloc + impExtra + impNoct + impFestiu + impDiss + pagaDobleImp;
+  const dedIRPF = brut * config.pctIRPF / 100;
+  const dedSS = brut * config.pctSS / 100;
+  const net = brut - dedIRPF - dedSS;
+
+  let html = `
+    <div class="resum-net anim">
+      <div class="net-label">Net estimat — ${MESOS[mes]}</div>
+      <div class="net-amount">${formatEuro(net)}</div>
+      <div class="net-note">${regs.length} dies registrats</div>
+    </div>
+
+    <div class="resum-card anim">
+      <h3>Conceptes Fixos</h3>
+      <div class="resum-row"><span class="r-label">Salari Base</span><span class="r-val">${formatEuro(config.salariBase)}</span></div>
+      <div class="resum-row"><span class="r-label">Complement Lloc</span><span class="r-val">${formatEuro(config.complementLloc)}</span></div>
+      ${esMesPaga ? `<div class="resum-row"><span class="r-label">🎉 Paga Extra</span><span class="r-val">${formatEuro(pagaDobleImp)}</span></div>` : ''}
+    </div>
+
+    <div class="resum-card anim">
+      <h3>Plusos i Hores</h3>
+      <div class="resum-row"><span class="r-label">H. Extra (${totalHExtra}h)</span><span class="r-val">${formatEuro(impExtra)}</span></div>
+      <div class="resum-row"><span class="r-label">H. Nocturna (${totalHNoct}h)</span><span class="r-val">${formatEuro(impNoct)}</span></div>
+      <div class="resum-row"><span class="r-label">Plus Festiu (${totalFestius} dies)</span><span class="r-val">${formatEuro(impFestiu)}</span></div>
+      <div class="resum-row"><span class="r-label">Plus Dissabte/Diumenge</span><span class="r-val">${formatEuro(impDiss)}</span></div>
+    </div>
+
+    <div class="resum-card anim">
+      <h3>Deduccions</h3>
+      <div class="resum-row"><span class="r-label">Total Brut</span><span class="r-val">${formatEuro(brut)}</span></div>
+      <div class="resum-row"><span class="r-label">IRPF (${config.pctIRPF}%)</span><span class="r-val" style="color:var(--festiu)">− ${formatEuro(dedIRPF)}</span></div>
+      <div class="resum-row"><span class="r-label">SS Treballador (${config.pctSS}%)</span><span class="r-val" style="color:var(--festiu)">− ${formatEuro(dedSS)}</span></div>
+    </div>
+  `;
+
+  document.getElementById('resum-content').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+// HISTORIAL
+// ══════════════════════════════════════════════
+function renderHistorial() {
+  const now = new Date();
+  renderMesSelector('mes-selector-hist', mesHistActual, (i) => { mesHistActual = i; renderHistorialContent(); });
+  renderHistorialContent();
+}
+
+function renderHistorialContent() {
+  const any = new Date().getFullYear();
+  const regs = registres.filter(r => r.mes === mesHistActual && r.any === any);
+  const cont = document.getElementById('historial-content');
+
+  if (regs.length === 0) {
+    cont.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>Encara no hi ha dies registrats<br>per ${MESOS[mesHistActual]}.</p></div>`;
+    return;
+  }
+
+  const dies = ['Dg','Dl','Dm','Dc','Dj','Dv','Ds'];
+  let html = '';
+  [...regs].reverse().forEach(r => {
+    const d = new Date(r.data + 'T00:00:00');
+    const isFestiu = r.tipus === 'Festiu';
+    const imp = (r.hExtra||0)*config.preuHExtra + (r.hNoct||0)*config.plusHNoct + (r.plusFestiu||0) + ((r.tipus==='Dissabte'||r.tipus==='Diumenge')?(r.hTreb||0)*config.plusHDiss:0);
+    const infoTxt = [
+      r.entrada && r.sortida ? `${r.entrada}–${r.sortida}` : '',
+      r.hTreb > 0 ? `${r.hTreb.toFixed(1)}h` : '',
+      r.hExtra > 0 ? `+${r.hExtra}h ext` : '',
+      r.hNoct > 0 ? `${r.hNoct}h nit` : '',
+      r.tipus !== 'Normal' ? r.tipus : '',
+    ].filter(Boolean).join(' · ');
+
+    html += `
+      <div class="dia-item ${isFestiu ? 'festiu' : ''}" onclick="editDia('${r.data}')">
+        <div class="dia-dot dot-${r.torn}"></div>
+        <div class="dia-data">
+          <div class="dia-date">${dies[d.getDay()]} ${d.getDate()} ${MESOS[d.getMonth()].substr(0,3)} — Torn ${r.torn}</div>
+          <div class="dia-info">${infoTxt || 'Descans'}</div>
+        </div>
+        ${imp > 0 ? `<div class="dia-plus">+${formatEuro(imp)}</div>` : ''}
+      </div>
+    `;
+  });
+
+  cont.innerHTML = html;
+}
+
+function editDia(dataStr) {
+  // Carrega el dia per editar
+  const reg = registres.find(r => r.data === dataStr);
+  if (!reg) return;
+  goTo('view-hores');
+  setTimeout(() => {
+    document.getElementById('input-data').value = reg.data;
+    updateDataText();
+    selectTorn(reg.torn);
+    selectTipus(reg.tipus);
+    document.getElementById('input-entrada').value = reg.entrada || '';
+    document.getElementById('input-sortida').value = reg.sortida || '';
+    numExtra = reg.hExtra || 0;
+    numNoct = reg.hNoct || 0;
+    document.getElementById('display-extra').textContent = numExtra;
+    document.getElementById('display-noct').textContent = numNoct;
+    calcPreview();
+  }, 50);
+}
+
+// ══════════════════════════════════════════════
+// CONFIGURACIÓ
+// ══════════════════════════════════════════════
+const CONFIG_FIELDS = [
+  { section: 'Salari', fields: [
+    { key: 'salariBase', label: 'Salari Base Mensual', unit: '€' },
+    { key: 'complementLloc', label: 'Complement de Lloc', unit: '€' },
+    { key: 'pagaDoble', label: 'Paga Extra (cada X mesos)', unit: '€' },
+    { key: 'mesosPaga', label: 'Mesos paga extra (ex: 3,6,9,12)', unit: '', isText: true },
+  ]},
+  { section: 'Plusos i Hores', fields: [
+    { key: 'preuHExtra', label: 'Preu Hora Extra', unit: '€/h' },
+    { key: 'preuHFestiva', label: 'Preu Hora Festiva', unit: '€/h' },
+    { key: 'plusHNoct', label: 'Plus Hora Nocturna', unit: '€/h' },
+    { key: 'plusHDiss', label: 'Plus Hora Dissabte/Diumenge', unit: '€/h' },
+    { key: 'plusFestiu', label: 'Plus Dia Festiu', unit: '€/dia' },
+  ]},
+  { section: 'Deduccions', fields: [
+    { key: 'pctIRPF', label: '% IRPF', unit: '%' },
+    { key: 'pctSS', label: '% Seguretat Social', unit: '%' },
+  ]},
+];
+
+function renderConfig() {
+  let html = '';
+  CONFIG_FIELDS.forEach(sec => {
+    html += `<div class="config-section"><div class="config-section-title">${sec.section}</div>`;
+    sec.fields.forEach(f => {
+      const val = config[f.key];
+      html += `
+        <div class="config-item">
+          <div><div class="c-label">${f.label}</div><div class="c-unit">${f.unit}</div></div>
+          <input class="config-input" id="cfg-${f.key}" type="${f.isText ? 'text' : 'number'}"
+            step="0.01" value="${val}" inputmode="${f.isText ? 'text' : 'decimal'}">
+        </div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('config-content').innerHTML = html;
+}
+
+function saveConfig() {
+  CONFIG_FIELDS.forEach(sec => {
+    sec.fields.forEach(f => {
+      const el = document.getElementById('cfg-' + f.key);
+      if (el) config[f.key] = f.isText ? el.value : parseFloat(el.value) || 0;
+    });
+  });
+  localStorage.setItem('nomina_config', JSON.stringify(config));
+}
+
+// ══════════════════════════════════════════════
+// UTILITATS
+// ══════════════════════════════════════════════
+function renderMesSelector(containerId, active, onChange) {
+  const cont = document.getElementById(containerId);
+  cont.innerHTML = MESOS_CURT.map((m, i) =>
+    `<div class="mes-chip ${i === active ? 'active' : ''}" onclick="onMesClick('${containerId}',${i})">${m}</div>`
+  ).join('');
+  cont._onChange = onChange;
+}
+
+function onMesClick(containerId, i) {
+  const cont = document.getElementById(containerId);
+  cont.querySelectorAll('.mes-chip').forEach((c, j) => c.classList.toggle('active', j === i));
+  if (containerId === 'mes-selector') mesResumActual = i;
+  if (containerId === 'mes-selector-hist') mesHistActual = i;
+  if (cont._onChange) cont._onChange(i);
+}
+
+function calcNet(mes, any) {
+  const regs = registres.filter(r => r.mes === mes && r.any === any);
+  let impExtra = 0, impNoct = 0, impFestiu = 0, impDiss = 0;
+  regs.forEach(r => {
+    impExtra += (r.hExtra||0) * config.preuHExtra;
+    impNoct += (r.hNoct||0) * config.plusHNoct;
+    if (r.tipus === 'Festiu') impFestiu += config.plusFestiu;
+    if (r.tipus === 'Dissabte' || r.tipus === 'Diumenge') impDiss += (r.hTreb||0) * config.plusHDiss;
+  });
+  const mesosPaga = config.mesosPaga.split(',').map(m => parseInt(m.trim()));
+  const pagaDobleImp = mesosPaga.includes(mes + 1) ? config.pagaDoble : 0;
+  const brut = config.salariBase + config.complementLloc + impExtra + impNoct + impFestiu + impDiss + pagaDobleImp;
+  return brut * (1 - config.pctIRPF/100 - config.pctSS/100);
+}
+
+function formatEuro(n) {
+  return n.toLocaleString('ca-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
+function saveRegistres() {
+  localStorage.setItem('nomina_registres', JSON.stringify(registres));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Inicialitza
+renderHome();
+</script>
+</body>
+</html>
