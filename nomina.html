@@ -625,6 +625,12 @@ let config = JSON.parse(localStorage.getItem('nomina_config') || JSON.stringify(
 let registres = JSON.parse(localStorage.getItem('nomina_registres') || '[]');
 
 // Estat formulari hores
+let tornActual = 'M';
+let tipusActual = 'Normal';
+let numExtra = 0;
+let numNoct = 0;
+let mesResumActual = new Date().getMonth();
+let mesHistActual = new Date().getMonth();
 let horaRapidaActual = 0; // 0 = manual
 
 function setHoresRapides(h) {
